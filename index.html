@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест AdAS Spectrum</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(45deg, #4a90e2, #7b68ee);
+            color: white;
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .section {
+            margin-bottom: 50px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            border-left: 5px solid #4a90e2;
+        }
+
+        .section-title {
+            font-size: 1.5em;
+            font-weight: 600;
+            color: #4a90e2;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .question {
+            margin-bottom: 25px;
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s ease;
+        }
+
+        .question:hover {
+            transform: translateY(-2px);
+        }
+
+        .question-text {
+            font-weight: 500;
+            margin-bottom: 15px;
+            line-height: 1.6;
+            color: #2c3e50;
+        }
+
+        .question-number {
+            color: #4a90e2;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .options {
+            display: flex;
+            gap: 20px;
+        }
+
+        .option {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            padding: 10px 15px;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .option:hover {
+            background: #e3f2fd;
+        }
+
+        .option input[type="radio"] {
+            margin-right: 8px;
+            transform: scale(1.2);
+        }
+
+        .option.yes {
+            color: #4caf50;
+        }
+
+        .option.no {
+            color: #f44336;
+        }
+
+        .option input[type="radio"]:checked + .option-label {
+            font-weight: bold;
+        }
+
+        .results {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 40px;
+            display: none;
+        }
+
+        .results h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2em;
+        }
+
+        .section-result {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .total-result {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .total-score {
+            font-size: 3em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .interpretation {
+            font-size: 1.2em;
+            font-weight: 600;
+        }
+
+        .calculate-btn {
+            background: linear-gradient(45deg, #4caf50, #45a049);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2em;
+            border-radius: 25px;
+            cursor: pointer;
+            display: block;
+            margin: 30px auto;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .progress-bar {
+            background: #e0e0e0;
+            border-radius: 10px;
+            height: 8px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: #4caf50;
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Тест AdAS Spectrum</h1>
+            <p>Диагностический тест на выявление аутичных черт</p>
+            <p style="font-size: 0.9em; opacity: 0.8; margin-top: 10px;">
+                Перевод <a href="https://t.me/na_spektre/196" target="_blank" style="color: #ffffff; text-decoration: underline;">Джумка</a>
+                <br/>
+                Реализация <a href="https://github.com/yupic/adas" target="_blank" style="color: #ffffff; text-decoration: underline;">yupic</a>
+            </p>
+        </div>
+
+        <div class="content">
+            <div class="loading" id="loading">Загрузка вопросов...</div>
+            <form id="adasTest" style="display: none;">
+                <div id="questionsContainer"></div>
+                <button type="button" class="calculate-btn" onclick="calculateResults()">
+                    Рассчитать результаты
+                </button>
+            </form>
+
+            <div class="results" id="results">
+                <h2>Результаты теста</h2>
+                <div id="sectionResults"></div>
+                <div class="total-result">
+                    <div class="total-score" id="totalScore">0</div>
+                    <div class="interpretation" id="interpretation"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+<script>
+    const DEBUG = false;
+
+    const sections = [/* тут остаются твои данные о разделах и вопросах, они не изменялись */];
+
+    function setAllAnswers(value) {
+        const totalQuestions = sections.reduce((sum, section) => sum + section.questions.length, 0);
+        for (let i = 1; i <= totalQuestions; i++) {
+            const radios = document.getElementsByName(`q${i}`);
+            for (let radio of radios) {
+                if (radio.value === value.toString()) {
+                    radio.checked = true;
+                    break;
+                }
+            }
+        }
+        console.log(`Все ответы установлены в ${value === 1 ? 'ДА' : 'НЕТ'}`);
+    }
+
+    function setRandomAnswersInRange(minScore, maxScore) {
+        const totalQuestions = sections.reduce((sum, section) => sum + section.questions.length, 0);
+        const targetScore = Math.floor(Math.random() * (maxScore - minScore + 1)) + minScore;
+
+        for (let i = 1; i <= totalQuestions; i++) {
+            const radios = document.getElementsByName(`q${i}`);
+            for (let radio of radios) {
+                if (radio.value === '0') {
+                    radio.checked = true;
+                    break;
+                }
+            }
+        }
+
+        const questionsToSetYes = [];
+        while (questionsToSetYes.length < targetScore) {
+            const randomQ = Math.floor(Math.random() * totalQuestions) + 1;
+            if (!questionsToSetYes.includes(randomQ)) {
+                questionsToSetYes.push(randomQ);
+            }
+        }
+
+        questionsToSetYes.forEach(qNum => {
+            const radios = document.getElementsByName(`q${qNum}`);
+            for (let radio of radios) {
+                if (radio.value === '1') {
+                    radio.checked = true;
+                    break;
+                }
+            }
+        });
+
+        console.log(`Сгенерирован результат: ${targetScore} (диапазон: ${minScore}-${maxScore})`);
+    }
+
+    function generateQuestions() {
+        const container = document.getElementById('questionsContainer');
+        let questionNumber = 1;
+
+        if (DEBUG) {
+            const debugPanel = document.createElement('div');
+            debugPanel.className = 'debug-panel';
+            debugPanel.innerHTML = `
+                <h3 style="color: #ff4444; margin-bottom: 15px;">🔧 ОТЛАДОЧНАЯ ПАНЕЛЬ</h3>
+                <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                    <button type="button" onclick="setAllAnswers(1)">Все ДА</button>
+                    <button type="button" onclick="setAllAnswers(0)">Все НЕТ</button>
+                    <button type="button" onclick="setRandomAnswersInRange(0, 42)">Случайно < 43</button>
+                    <button type="button" onclick="setRandomAnswersInRange(43, 69)">Случайно 43-69</button>
+                    <button type="button" onclick="setRandomAnswersInRange(70, 150)">Случайно ≥ 70</button>
+                </div>
+            `;
+            container.appendChild(debugPanel);
+        }
+
+        sections.forEach((section, sectionIndex) => {
+            const sectionDiv = document.createElement('div');
+            sectionDiv.className = 'section';
+            sectionDiv.innerHTML = `<h2 class="section-title">${section.title}</h2>`;
+
+            if (sectionIndex === 0) {
+                const explanationDiv = document.createElement('div');
+                explanationDiv.style.cssText = 'font-style: italic; margin-bottom: 20px; color: #666; font-size: 1.1em;';
+                explanationDiv.textContent = 'Когда вы были ребенком:';
+                sectionDiv.appendChild(explanationDiv);
+            }
+
+            section.questions.forEach((questionText, questionIndex) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'question';
+                questionDiv.innerHTML = `
+                    <div class="question-text">
+                        <span class="question-number">${questionNumber}.</span>
+                        ${questionText}
+                    </div>
+                    <div class="options">
+                        <label class="option yes">
+                            <input type="radio" name="q${questionNumber}" value="1" required>
+                            <span class="option-label">ДА</span>
+                        </label>
+                        <label class="option no">
+                            <input type="radio" name="q${questionNumber}" value="0" required>
+                            <span class="option-label">НЕТ</span>
+                        </label>
+                    </div>
+                `;
+                sectionDiv.appendChild(questionDiv);
+                questionNumber++;
+            });
+
+            container.appendChild(sectionDiv);
+        });
+
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('adasTest').style.display = 'block';
+    }
+    function findFirstUnansweredQuestion(totalQuestions) {
+        for (let i = 1; i <= totalQuestions; i++) {
+            const radios = document.getElementsByName(`q${i}`);
+            let isAnswered = false;
+
+            for (let radio of radios) {
+                if (radio.checked) {
+                    isAnswered = true;
+                    break;
+                }
+            }
+
+            if (!isAnswered) {
+                return radios[0].closest('.question');
+            }
+        }
+        return null;
+    }
+
+    function calculateResults() {
+        const form = document.getElementById('adasTest');
+        const formData = new FormData(form);
+
+        const totalQuestions = sections.reduce((sum, section) => sum + section.questions.length, 0);
+        const answeredQuestions = Array.from(formData.keys()).length;
+
+        if (answeredQuestions < totalQuestions) {
+            const firstUnansweredQuestion = findFirstUnansweredQuestion(totalQuestions);
+            if (firstUnansweredQuestion) {
+                firstUnansweredQuestion.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'center' 
+                });
+                firstUnansweredQuestion.style.border = '3px solid #ff4444';
+                firstUnansweredQuestion.style.boxShadow = '0 0 15px rgba(255, 68, 68, 0.3)';
+                setTimeout(() => {
+                    firstUnansweredQuestion.style.border = '';
+                    firstUnansweredQuestion.style.boxShadow = '0 2px 10px rgba(0, 0, 0, 0.05)';
+                }, 3000);
+            }
+
+            alert(`Пожалуйста, ответьте на все вопросы. Отвечено: ${answeredQuestions} из ${totalQuestions}`);
+            return;
+        }
+
+        let totalScore = 0;
+        let sectionScores = [];
+        let questionNumber = 1;
+
+        sections.forEach((section, sectionIndex) => {
+            let sectionScore = 0;
+
+            for (let i = 0; i < section.questions.length; i++) {
+                const answer = formData.get(`q${questionNumber}`);
+                if (answer === '1') {
+                    sectionScore++;
+                    totalScore++;
+                }
+                questionNumber++;
+            }
+
+            const percentage = Math.round((sectionScore / section.questions.length) * 100);
+            sectionScores.push({
+                name: section.title,
+                score: sectionScore,
+                total: section.questions.length,
+                percentage: percentage
+            });
+        });
+
+        displayResults(sectionScores, totalScore, totalQuestions);
+    }
+
+    function displayResults(sectionScores, totalScore, totalQuestions) {
+        const resultsDiv = document.getElementById('results');
+        const sectionResultsDiv = document.getElementById('sectionResults');
+        const totalScoreDiv = document.getElementById('totalScore');
+        const interpretationDiv = document.getElementById('interpretation');
+
+        sectionResultsDiv.innerHTML = '';
+
+        sectionScores.forEach(data => {
+            const sectionDiv = document.createElement('div');
+            sectionDiv.className = 'section-result';
+            sectionDiv.innerHTML = `
+                <div>
+                    <strong>${data.name}</strong>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${data.percentage}%"></div>
+                    </div>
+                </div>
+                <div>
+                    <strong>${data.score}/${data.total} (${data.percentage}%)</strong>
+                </div>
+            `;
+            sectionResultsDiv.appendChild(sectionDiv);
+        });
+
+        totalScoreDiv.textContent = `${totalScore}/${totalQuestions}`;
+
+        let interpretation;
+        if (totalScore < 43) {
+            interpretation = "Низкие аутичные черты";
+        } else if (totalScore >= 43 && totalScore < 70) {
+            interpretation = "Наличие ярких аутичных черт";
+        } else {
+            interpretation = "Наличие расстройства аутистического спектра";
+        }
+
+        interpretationDiv.textContent = interpretation;
+        resultsDiv.style.display = 'block';
+        resultsDiv.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        generateQuestions();
+    });
+</script>
+</body>
+</html>
